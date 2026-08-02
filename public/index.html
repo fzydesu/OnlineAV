@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>看视频</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+  <!-- ═══ HOME VIEW ═══ -->
+  <div id="view-home" class="view active">
+    <div class="home-container">
+      <h1 class="logo">还没想好叫什么名字的同步看视频小程序</h1>
+      <p class="subtitle">enjoy watching videos with your friends</p>
+
+      <div class="card" id="create-card">
+        <h2>创建房间</h2>
+        <p>上传视频，创建房间，分享房间码给朋友</p>
+        <div class="dropzone" id="dropzone">
+          <div class="dropzone-content">
+            <span class="dropzone-icon">📁</span>
+            <p>拖拽视频文件到这里，或点击选择</p>
+            <p class="dropzone-hint">支持 MP4、MKV、WebM 等格式，最大 4GB</p>
+          </div>
+          <input type="file" id="file-input" accept="video/*" hidden>
+        </div>
+        <div class="upload-progress hidden" id="upload-progress">
+          <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+          <p class="progress-text" id="progress-text">上传中...</p>
+        </div>
+        <button class="btn btn-primary" id="btn-create" disabled>创建房间</button>
+      </div>
+
+      <div class="divider"><span>或者</span></div>
+
+      <div class="card">
+        <h2 style="color: #ccc; cursor: not-allowed;" title="暂不可用">B站视频同步（暂不可用！）</h2>
+        <p>输入B站BV号，和朋友一起看B站视频</p>
+        <div class="bili-form">
+          <input type="text" id="bili-bvid" class="input-code" style="text-transform:none;letter-spacing:1px;font-size:1.1rem;"
+                 placeholder="输入BV号，如 BV1xx411c7mD" maxlength="20" autocomplete="off">
+          <button class="btn btn-secondary" id="btn-bili-set" disabled>使用B站视频</button>
+        </div>
+        <p class="bili-hint" id="bili-hint"></p>
+      </div>
+
+      <div class="divider"><span>或者</span></div>
+
+      <div class="card">
+        <h2>加入房间</h2>
+        <p>输入朋友分享的房间码，加入观看</p>
+        <div class="join-form">
+          <input type="text" id="join-code" class="input-code"
+                 placeholder="输入房间码" maxlength="6" autocomplete="off">
+          <input type="text" id="join-name" class="input-name"
+                 placeholder="你的昵称（选填）" maxlength="20" autocomplete="off">
+          <button class="btn btn-secondary" id="btn-join">加入房间</button>
+        </div>
+        <p class="error-msg hidden" id="join-error"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ HOST VIEW ═══ -->
+  <div id="view-host" class="view">
+    <div class="player-layout">
+      <div class="player-section">
+        <!-- Upload zone (shown when no video) -->
+        <div class="dropzone host-dropzone hidden" id="host-dropzone">
+          <div class="dropzone-content">
+            <span class="dropzone-icon">📁</span>
+            <p>拖拽视频文件到这里，或点击选择</p>
+            <p class="dropzone-hint">支持 MP4、MKV、WebM 等格式，最大 4GB</p>
+          </div>
+          <input type="file" id="host-file-input" accept="video/*" hidden>
+        </div>
+        <div class="upload-progress hidden" id="host-upload-progress">
+          <div class="progress-bar"><div class="progress-fill" id="host-progress-fill"></div></div>
+          <p class="progress-text" id="host-progress-text">上传中...</p>
+        </div>
+
+        <!-- Video player -->
+        <video id="player" class="video-player hidden" preload="auto" playsinline></video>
+        <!-- Bilibili iframe container -->
+        <div id="host-bili-container" class="bili-container hidden"></div>
+
+        <!-- Waiting overlay (before video is loaded) -->
+        <div class="player-overlay" id="host-overlay">
+          <p>请上传视频文件开始</p>
+        </div>
+      </div>
+
+      <div class="info-panel">
+        <div class="room-info">
+          <span class="room-label">房间码</span>
+          <span class="room-code" id="host-room-code">------</span>
+          <button class="btn btn-small" id="btn-copy">📋 复制链接</button>
+        </div>
+        <div class="viewer-info">
+          <span class="viewer-icon">👥</span>
+          <span class="viewer-count" id="host-viewer-count">0 人在线</span>
+        </div>
+        <div class="status-badge" id="host-status">
+          <span class="status-dot"></span> 等待视频
+        </div>
+        <button class="btn btn-danger btn-small" id="btn-leave-host">退出房间</button>
+        <button class="btn btn-danger btn-small" id="btn-delete-room" style="margin-top:4px;">🗑️ 删除房间</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ VIEWER VIEW ═══ -->
+  <div id="view-viewer" class="view">
+    <div class="player-layout">
+      <div class="player-section">
+        <video id="viewer-player" class="video-player" preload="auto" playsinline></video>
+        <div id="viewer-bili-container" class="bili-container hidden"></div>
+        <div class="player-overlay" id="viewer-overlay">
+          <div class="waiting-content">
+            <div class="spinner"></div>
+            <p id="overlay-message">正在连接房间...</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-panel">
+        <div class="room-info">
+          <span class="room-label">房间码</span>
+          <span class="room-code" id="viewer-room-code">------</span>
+        </div>
+        <div class="viewer-info">
+          <span class="viewer-icon">👥</span>
+          <span class="viewer-count" id="viewer-viewer-count">1 人在线</span>
+        </div>
+        <div class="status-badge synced" id="viewer-status">
+          <span class="status-dot"></span> 已同步
+        </div>
+        <button class="btn btn-danger btn-small" id="btn-leave-viewer">退出房间</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TOAST ═══ -->
+  <div class="toast hidden" id="toast"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
