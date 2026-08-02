@@ -10,7 +10,7 @@ const os = require('os');
 // ── Config ──────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
-const MAX_FILE_SIZE = 4 * 1024 * 1024 * 1024; // 4 GB
+const MAX_FILE_SIZE = 15 * 1024 * 1024 * 1024; // 15 GB
 const ROOM_CODE_LENGTH = 6;
 const ROOM_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O, 1/I
 const SYNC_TICK_MS = 5000;
